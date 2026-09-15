@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Self-Check Tool | jem physio</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap');
+
+  :root {
+    --navy-deep: #1F2830;
+    --navy: #475A6B;
+    --blue: #7A90A8;
+    --blue-soft: #AFCAE8;
+    --blue-tint: color-mix(in srgb, #AFCAE8 35%, white);
+    --sand: #EFEAE4;
+    --tan: #A78A6A;
+    --tan-deep: #6B553D;
+    --tan-soft: color-mix(in srgb, #A78A6A 22%, white);
+    --ink: #1F2830;
+    --ink-soft: #475A6B;
+    --line: #DDD5C8;
+    --white: #FFFFFF;
+    --radius: 18px;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--sand);
+    font-family: 'Inter', sans-serif;
+    color: var(--ink);
+    display: flex;
+    justify-content: center;
+    padding: 32px 16px;
+    min-height: 100vh;
+  }
+
+  .device {
+    width: 100%;
+    max-width: 440px;
+  }
+
+  .brand-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 18px;
+  }
+
+  .brand-mark {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+    letter-spacing: 0.02em;
+    color: var(--navy-deep);
+  }
+
+  .brand-mark span { color: var(--tan); }
+
+  .card {
+    background: var(--white);
+    border-radius: 24px;
+    box-shadow: 0 1px 2px rgba(31,40,48,0.05), 0 12px 32px rgba(31,40,48,0.10);
+    overflow: hidden;
+    position: relative;
+    min-height: 560px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .pulse-track {
+    height: 40px;
+    background: var(--blue-tint);
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .pulse-track svg { width: 100%; height: 24px; display: block; }
+
+  .pulse-line {
+    fill: none;
+    stroke: var(--navy);
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    transition: d 0.6s ease;
+  }
+
+  .step-count {
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--navy);
+    letter-spacing: 0.04em;
+    background: var(--white);
+    padding: 3px 9px;
+    border-radius: 20px;
+  }
+
+  .content {
+    padding: 32px 28px 28px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .eyebrow {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--tan);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 10px;
+  }
+
+  h1 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 25px;
+    line-height: 1.25;
+    margin: 0 0 12px;
+    color: var(--navy-deep);
+    font-weight: 600;
+  }
+
+  p {
+    font-size: 15px;
+    line-height: 1.55;
+    color: var(--ink-soft);
+    margin: 0 0 16px;
+  }
+
+  .question {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--ink);
+    margin: 4px 0 16px;
+  }
+
+  .options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: auto;
+  }
+
+  .opt {
+    text-align: left;
+    padding: 14px 16px;
+    border-radius: 14px;
+    border: 1.5px solid var(--line);
+    background: var(--white);
+    font-family: 'Inter', sans-serif;
+    font-size: 14.5px;
+    font-weight: 500;
+    color: var(--ink);
+    cursor: pointer;
+    transition: border-color 0.15s ease, background 0.15s ease;
+  }
+
+  .opt:hover { border-color: var(--navy); background: var(--blue-tint); }
+
+  .opt.selected {
+    border-color: var(--navy);
+    background: var(--blue-tint);
+  }
+
+  .opt.checkbox::before {
+    content: '';
+    display: inline-block;
+    width: 15px;
+    height: 15px;
+    border: 1.5px solid var(--line);
+    border-radius: 5px;
+    margin-right: 10px;
+    vertical-align: -3px;
+  }
+
+  .opt.checkbox.selected::before {
+    background: var(--tan);
+    border-color: var(--tan);
+  }
+
+  .actions {
+    margin-top: 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .btn-primary {
+    background: var(--navy-deep);
+    color: var(--white);
+    border: none;
+    padding: 15px 18px;
+    border-radius: 14px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s ease, transform 0.1s ease;
+  }
+
+  .btn-primary:hover { background: var(--navy); }
+  .btn-primary:active { transform: scale(0.98); }
+
+  .btn-primary:disabled {
+    background: var(--line);
+    color: var(--ink-soft);
+    cursor: not-allowed;
+  }
+
+  .btn-secondary {
+    background: var(--white);
+    color: var(--navy-deep);
+    border: 1.5px solid var(--line);
+    padding: 15px 18px;
+    border-radius: 14px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: border-color 0.15s ease, background 0.15s ease;
+  }
+
+  .btn-secondary:hover { border-color: var(--navy); background: var(--blue-tint); }
+
+  .btn-text {
+    background: none;
+    border: none;
+    color: var(--ink-soft);
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    text-decoration: underline;
+    cursor: pointer;
+    padding: 4px;
+  }
+
+  .btn-back {
+    background: none;
+    border: none;
+    color: var(--ink-soft);
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    cursor: pointer;
+    align-self: flex-start;
+    padding: 4px 0;
+    margin-bottom: 4px;
+  }
+
+  .result-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--tan-soft);
+    color: var(--tan-deep);
+    font-size: 12px;
+    font-weight: 600;
+    padding: 6px 12px;
+    border-radius: 20px;
+    margin-bottom: 16px;
+    width: fit-content;
+  }
+
+  .result-badge.calm {
+    background: var(--blue-tint);
+    color: var(--navy-deep);
+  }
+
+  .result-badge.priority {
+    background: var(--tan);
+    color: var(--white);
+  }
+
+  .fade-in { animation: fadeIn 0.35s ease; }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .toggle-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: auto;
+  }
+  .toggle-row .opt { flex: 1; text-align: center; }
+
+  footer {
+    text-align: center;
+    margin-top: 18px;
+    font-size: 11.5px;
+    color: var(--ink-soft);
+  }
+</style>
+</head>
+<body>
+
+<div class="device">
+  <div class="brand-row">
+    <div class="brand-mark">jem<span>·</span>physio self-check</div>
+  </div>
+
+  <div class="card">
+    <div class="pulse-track">
+      <svg viewBox="0 0 300 24" preserveAspectRatio="none">
+        <path class="pulse-line" id="pulseLine" d="M0,12 L300,12" />
+      </svg>
+      <div class="step-count" id="stepCount">Start</div>
+    </div>
+    <div class="content" id="content"></div>
+  </div>
+
+  <footer>Draft preview &middot; not yet live &middot; jemphysio.com</footer>
+</div>
+
+<script>
+const content = document.getElementById('content');
+const stepCount = document.getElementById('stepCount');
+const pulseLine = document.getElementById('pulseLine');
+
+// pulse line shapes: gets calmer/smoother as the user progresses (metaphor for feeling better)
+const pulses = [
+  "M0,12 L40,12 L50,2 L60,22 L70,12 L110,12 L120,4 L130,20 L140,12 L300,12", // erratic - start
+  "M0,12 L60,12 L70,4 L80,20 L90,12 L180,12 L190,6 L200,18 L210,12 L300,12",
+  "M0,12 L90,12 L100,6 L110,18 L120,12 L300,12",
+  "M0,12 L130,12 L140,7 L150,17 L160,12 L300,12",
+  "M0,12 L170,12 L178,8 L186,16 L194,12 L300,12",
+  "M0,12 L210,12 L216,9 L222,15 L228,12 L300,12",
+  "M0,12 L250,12 L255,10 L260,14 L265,12 L300,12",
+  "M0,12 L300,12" // flat / calm - end
+];
+
+let state = {
+  screen: 'intro',
+  redFlags: [],
+  swelling: null,
+  tempChange: null,
+  mobilityAnswer: null,
+  strengthAnswer: null,
+  symptomConstant: null,
+  symptomTriggers: [],
+  timeframe: null,
+  format: null,
+  recommendFaceToFace: false,
+  resultTier: null,
+  email: '',
+  emailSubmitted: false
+};
+
+let history = [];
+
+function setPulse(i){ pulseLine.setAttribute('d', pulses[Math.min(i, pulses.length-1)]); }
+
+// ---- Personalisation copy, driven by symptomConstant / symptomTriggers ----
+const triggerLines = {
+  "Movement helps": "movement seems to ease it, which is a good sign it's still responding well to load",
+  "Rest helps": "rest seems to settle it, which is worth knowing when you're deciding how hard to push it",
+  "Worse after activity": "it tends to react after activity rather than during, which often points to how much load it's handling overall",
+  "Worse during activity": "it flares up while you're active, which is useful for knowing what to ease back on for now",
+  "Worse in the morning": "mornings seem to be the hardest part, which is common with things that ease once you're warmed up",
+  "Worse later in the day": "it tends to build through the day, often a sign of load adding up rather than anything sudden"
+};
+// priority order for picking the top 2 when multiple are selected
+const triggerPriority = ["Movement helps","Rest helps","Worse after activity","Worse during activity","Worse in the morning","Worse later in the day"];
+
+// ---- Optional "send me this" link on the result screen ----
+// This links out to a Flodesk full-page form (a hosted page Flodesk
+// gives you a real URL for) in a new tab, rather than embedding a form
+// inline. Simplest possible setup - just paste your form's URL below -
+// but it does mean the visitor briefly leaves the tool.
+//
+// SETUP (in Flodesk): Forms -> create a "Full page" form -> customise
+// it to match your brand -> copy its link -> paste below.
+const FLODESK_FULL_PAGE_FORM_URL = 'https://jemphysio.myflodesk.com/triagetool';
+
+function emailCaptureHtml() {
+  return `
+    <div style="background:var(--blue-tint);padding:14px;border-radius:14px;margin-bottom:16px;">
+      <p style="font-size:13.5px;font-weight:600;color:var(--navy-deep);margin:0 0 8px;">Want this result sent to you, plus our self-management tips?</p>
+      <a href="${FLODESK_FULL_PAGE_FORM_URL}" target="_blank" rel="noopener" class="btn-secondary" style="display:block;text-align:center;text-decoration:none;">Get it sent to my inbox →</a>
+      <p style="font-size:11.5px;margin:8px 0 0;">Opens in a new tab &middot; optional &middot; no spam</p>
+    </div>
+  `;
+}
+
+function getPersonalisationLine() {
+  if (state.symptomConstant === true) {
+    return "It's been fairly constant rather than coming and going, which is useful for your practitioner to know.";
+  }
+  if (state.symptomTriggers.length === 0) {
+    return "It comes and goes rather than staying constant, which is a reasonable sign.";
+  }
+  const chosen = triggerPriority.filter(t => state.symptomTriggers.includes(t)).slice(0, 2);
+  if (chosen.length === 1) {
+    return `It sounds like ${triggerLines[chosen[0]]}.`;
+  }
+  return `It sounds like ${triggerLines[chosen[0]]}, and ${triggerLines[chosen[1]]}.`;
+}
+
+function render() {
+  content.innerHTML = '';
+  const el = document.createElement('div');
+  el.className = 'fade-in';
+
+  if (state.screen === 'intro') {
+    stepCount.textContent = 'Start'; setPulse(0);
+    el.innerHTML = `
+      <p style="font-size:12.5px;font-style:italic;color:var(--ink-soft);border-left:2px solid var(--line);padding-left:10px;margin-bottom:10px;">I'm a physio first and foremost, not a coder. The design and the tool has been created by Claude, but all of the language, decision making and information is me - jem.</p>
+      <p style="font-size:12.5px;color:var(--ink-soft);border-left:2px solid var(--line);padding-left:10px;margin-bottom:18px;">This tool is for general education only and is not a substitute for personalised medical advice.</p>
+      <h1>Not sure what to do? Start here.</h1>
+      <p>Had a tweak, a niggle, or something that's been hanging around longer than it should? This quick self-check will help you figure out what's going on, and what to do next.</p>
+      <p>Two minutes, no strings attached.</p>
+      <div class="actions"><button class="btn-primary" onclick="goTo('safety')">Start the self-check →</button></div>
+    `;
+  }
+
+  else if (state.screen === 'safety') {
+    stepCount.textContent = 'Step 1 of 5'; setPulse(1);
+    const flags = [
+      "Numbness or weakness that's new or getting worse",
+      "Loss of bladder or bowel control",
+      "This started after a serious fall, accident or collision",
+      "Fever alongside your pain",
+      "Chest pain, or pain spreading down your arm",
+      "Unexplained weight loss alongside your pain"
+    ];
+    el.innerHTML = `
+      ${backButtonHtml()}
+      <div class="eyebrow">Safety check</div>
+      <h1>First, a quick check</h1>
+      <p class="question">Are you experiencing any of the following right now?</p>
+      <div class="options" id="flagOpts"></div>
+      <div class="actions">
+        <button class="btn-primary" id="safetyNext" onclick="submitSafety()">Continue →</button>
+      </div>
+    `;
+    content.appendChild(el);
+    const opts = document.getElementById('flagOpts');
+    flags.forEach(f => {
+      const b = document.createElement('button');
+      b.className = 'opt checkbox' + (state.redFlags.includes(f) ? ' selected' : '');
+      b.textContent = f;
+      b.onclick = () => {
+        b.classList.toggle('selected');
+        state.redFlags = state.redFlags.includes(f) ? state.redFlags.filter(x=>x!==f) : [...state.redFlags, f];
+      };
+      opts.appendChild(b);
+    });
+    return;
+  }
+
+  else if (state.screen === 'exit') {
+    stepCount.textContent = 'Result'; setPulse(1);
+    el.innerHTML = `
+      ${backButtonHtml()}
+      <div class="result-badge">Please see a GP today</div>
+      <h1>Let's get you to the right place</h1>
+      <p>Thanks for being upfront with us. Based on what you've shared, the best next step is your GP or your nearest emergency department today. Physio isn't the right starting point for this one, and we want you seen by the right person, fast.</p>
+      <div class="actions">
+        <button class="btn-primary" onclick="resetTool()">Back to jem physio homepage</button>
+      </div>
+    `;
+  }
+
+  else if (state.screen === 'swellingCheck') {
+    stepCount.textContent = 'Step 1 of 5'; setPulse(1);
+    el.innerHTML = `
+      ${backButtonHtml()}
+      <div class="eyebrow">Quick check</div>
+      <h1>A couple more things to check</h1>
+      <p class="question">Is there any swelling at the site?</p>
+      <div class="toggle-row" id="swellRow">
+        <button class="opt${state.swelling === true ? ' selected' : ''}" onclick="answer('swelling', true)">Yes</button>
+        <button class="opt${state.swelling === false ? ' selected' : ''}" onclick="answer('swelling', false)">No</button>
+      </div>
+    `;
+  }
+
+  else if (state.screen === 'tempCheck') {
+    stepCount.textContent = 'Step 1 of 5'; setPulse(1);
+    el.innerHTML = `
+      ${backButtonHtml()}
+      <div class="eyebrow">Quick check</div>
+      <h1>One more thing</h1>
+      <p class="question">Does the area feel warm or hot to touch, compared to the rest of your body?</p>
+      <div class="toggle-row">
+        <button class="opt${state.tempChange === true ? ' selected' : ''}" onclick="answer('tempChange', true)">Yes</button>
+        <button class="opt${state.tempChange === false ? ' selected' : ''}" onclick="answer('tempChange', false)">No</button>
+      </div>
+    `;
+  }
+
+  else if (state.screen === 'mobility') {
+    stepCount.textContent = 'Step 2 of 5'; setPulse(2);
+    el.innerHTML = `
+      ${backButtonHtml()}
+      <div class="eyebrow">Self-check &middot; 1 of 3</div>
+      <h1>Let's check how it's moving</h1>
+      <p>Compare the movement to normal, or to the other side.</p>
+      <p class="question">Is your range of movement limited, and does moving that way hurt?</p>
+      <div class="options">
+        <button class="opt${state.mobilityAnswer === 'no' ? ' selected' : ''}" onclick="answer('mobilityAnswer', 'no')">No, it's not limited or painful</button>
+        <button class="opt${state.mobilityAnswer === 'under3' ? ' selected' : ''}" onclick="answer('mobilityAnswer', 'under3')">Yes, and pain is under 3/10</button>
+        <button class="opt${state.mobilityAnswer === '3to6' ? ' selected' : ''}" onclick="answer('mobilityAnswer', '3to6')">Yes, and pain is 3 to 6/10</button>
+        <button class="opt${state.mobilityAnswer === 'over6' ? ' selected' : ''}" onclick="answer('mobilityAnswer', 'over6')">Yes, and pain is above 6/10</button>
+      </div>
+    `;
+  }
+
+  else if (state.screen === 'strength') {
+    stepCount.textContent = 'Step 2 of 5'; setPulse(2);
+    el.innerHTML = `
+      ${backButtonHtml()}
+      <div class="eyebrow">Self-check &middot; 2 of 3</div>
+      <h1>Now let's check strength</h1>
+      <p>Try comparing side to side, a single leg calf raise, a lunge, or standing up from a chair on one leg are easy ways to check.</p>
+      <p class="question">Does it feel weaker than the other side, and does producing that strength hurt?</p>
+      <div class="options">
+        <button class="opt${state.strengthAnswer === 'no' ? ' selected' : ''}" onclick="answer('strengthAnswer', 'no')">No, it's not weaker or painful</button>
+        <button class="opt${state.strengthAnswer === 'under3' ? ' selected' : ''}" onclick="answer('strengthAnswer', 'under3')">Yes, and pain is under 3/10</button>
+        <button class="opt${state.strengthAnswer === '3to6' ? ' selected' : ''}" onclick="answer('strengthAnswer', '3to6')">Yes, and pain is 3 to 6/10</button>
+        <button class="opt${state.strengthAnswer === 'over6' ? ' selected' : ''}" onclick="answer('strengthAnswer', 'over6')">Yes, and pain is above 6/10</button>
+      </div>
+    `;
+  }
+
+  else if (state.screen === 'symptomPattern') {
+    stepCount.textContent = 'Step 2 of 5'; setPulse(2);
+    el.innerHTML = `
+      ${backButtonHtml()}
+      <div class="eyebrow">Self-check &middot; 3 of 3</div>
+      <h1>How does it behave?</h1>
+      <p class="question">Is it constant, or does it change?</p>
+      <div class="toggle-row">
+        <button class="opt${state.symptomConstant === true ? ' selected' : ''}" onclick="answer('symptomConstant', true)">Constant</button>
+        <button class="opt${state.symptomConstant === false ? ' selected' : ''}" onclick="answer('symptomConstant', false)">It changes</button>
+      </div>
+    `;
+  }
+
+  else if (state.screen === 'symptomTriggers') {
+    stepCount.textContent = 'Step 2 of 5'; setPulse(2);
+    const triggers = ["Rest helps","Movement helps","Worse in the morning","Worse later in the day","Worse during activity","Worse after activity"];
+    el.innerHTML = `
+      ${backButtonHtml()}
+      <div class="eyebrow">Self-check &middot; 3 of 3</div>
+      <h1>What makes it change?</h1>
+      <p class="question">Select all that apply</p>
+      <div class="options" id="trigOpts"></div>
+      <div class="actions"><button class="btn-primary" onclick="goTo('tryFirst')">Continue →</button></div>
+    `;
+    content.appendChild(el);
+    const opts = document.getElementById('trigOpts');
+    triggers.forEach(t => {
+      const b = document.createElement('button');
+      b.className = 'opt checkbox' + (state.symptomTriggers.includes(t) ? ' selected' : '');
+      b.textContent = t;
+      b.onclick = () => {
+        b.classList.toggle('selected');
+        state.symptomTriggers = state.symptomTriggers.includes(t) ? state.symptomTriggers.filter(x=>x!==t) : [...state.symptomTriggers, t];
+      };
+      opts.appendChild(b);
+    });
+    return;
+  }
+
+  else if (state.screen === 'tryFirst') {
+    stepCount.textContent = 'Step 3 of 5'; setPulse(3);
+    el.innerHTML = `
+      ${backButtonHtml()}
+      <div class="eyebrow">What to try first</div>
+      <h1>Here's what to do right now</h1>
+      <p>For the first few days, the priority is simple: support it, protect it, and keep it moving within a comfortable range. That might mean easing off the activity that aggravates it, not stopping everything.</p>
+      <p>If you're not sure how to do that, or you'd rather have someone guide you through it, that's exactly what we're here for.</p>
+      <p class="question">How long has this been going on?</p>
+      <div class="options">
+        <button class="opt${state.timeframe === 'recent' ? ' selected' : ''}" onclick="answer('timeframe','recent')">Just started (last couple of weeks)</button>
+        <button class="opt${state.timeframe === 'weeks' ? ' selected' : ''}" onclick="answer('timeframe','weeks')">A few weeks to a few months</button>
+        <button class="opt${state.timeframe === 'chronic' ? ' selected' : ''}" onclick="answer('timeframe','chronic')">Months, or it keeps coming back</button>
+      </div>
+    `;
+  }
+
+  else if (state.screen === 'result') {
+    stepCount.textContent = 'Step 4 of 5'; setPulse(6);
+
+    // ---- Tier logic ----
+    const highPain = state.mobilityAnswer === 'over6' || state.strengthAnswer === 'over6';
+    const swellingAndHeat = state.swelling === true && state.tempChange === true;
+    const mildPain = (state.mobilityAnswer === 'no' || state.mobilityAnswer === 'under3')
+                   && (state.strengthAnswer === 'no' || state.strengthAnswer === 'under3');
+    const isEarly = state.timeframe === 'recent';
+
+    let tier;
+    if (highPain || swellingAndHeat) tier = 'bookSoon';
+    else if (mildPain && !swellingAndHeat) tier = 'generalAdvice';
+    else if (isEarly) tier = 'earlyDays';
+    else tier = 'properLook';
+
+    state.resultTier = tier;
+    state.recommendFaceToFace = highPain || swellingAndHeat;
+
+    let badgeClass, badgeText, msg, actionsHtml;
+    const personalisation = getPersonalisationLine();
+
+    if (tier === 'bookSoon') {
+      badgeClass = 'priority';
+      badgeText = 'Worth booking in soon';
+      if (swellingAndHeat && highPain) {
+        msg = "Swelling alongside warmth in the area is worth getting a closer look at sooner rather than later. It doesn't necessarily mean anything serious, but it's the kind of combination we'd rather see in person so we can check it properly and rule things out. On top of that, pain sitting above 6 out of 10 is worth getting seen for sooner too.";
+      } else if (swellingAndHeat) {
+        msg = "Swelling alongside warmth in the area is worth getting a closer look at sooner rather than later. It doesn't necessarily mean anything serious, but it's the kind of combination we'd rather see in person so we can check it properly and rule things out.";
+      } else {
+        msg = "Pain sitting above 6 out of 10 is worth getting seen for sooner rather than later. We'd recommend booking in for a face-to-face review, so a practitioner can get hands on and help you build an individualised plan from there.";
+      }
+      actionsHtml = `<div class="actions"><button class="btn-primary" onclick="goTo('booking')">Book a face-to-face review →</button></div>`;
+    }
+    else if (tier === 'generalAdvice') {
+      badgeClass = 'calm';
+      badgeText = "Sounds like you're on top of it";
+      msg = "Based on what you've shared, this sounds mild and manageable right now. Some practical load management, staying within a comfortable range of movement, and avoiding anything sharp, is a good place to start. If it changes, gets worse, or starts limiting you, that's the signal to get it looked at properly.";
+      actionsHtml = `
+        <div class="actions">
+          <a href="#self-management-guide" class="btn-primary" style="text-decoration:none;text-align:center;display:block;">Read our self-management tips →</a>
+          <button class="btn-text" onclick="goTo('booking')">Not convinced? Book in anyway</button>
+        </div>`;
+    }
+    else if (tier === 'earlyDays') {
+      badgeClass = 'calm';
+      badgeText = 'Early days, keep monitoring';
+      msg = "Early days. Some simple load management, supporting and protecting it while you keep an eye on how it responds over the next 5 to 7 days, is the practical next step. If it's still bothering you after that, it's worth getting checked out. Most people get a better outcome, and a faster one, by getting on top of things early, rather than waiting until it's been niggling for 6 to 8 weeks.";
+      actionsHtml = `<div class="actions"><button class="btn-primary" onclick="goTo('booking')">Book your initial consult →</button></div>`;
+    }
+    else {
+      badgeClass = '';
+      badgeText = 'Worth a proper look';
+      msg = "This has been around for a while, which usually means it's worth getting a proper look. Ongoing or recurring issues rarely resolve on their own, and the sooner we get eyes on it, the more options, and confidence, you'll have moving forward.";
+      actionsHtml = `<div class="actions"><button class="btn-primary" onclick="goTo('booking')">Book your initial consult →</button></div>`;
+    }
+
+    el.innerHTML = `
+      ${backButtonHtml()}
+      <div class="result-badge ${badgeClass}">${badgeText}</div>
+      <h1>Here's where you're at</h1>
+      <p>${msg}</p>
+      <p>${personalisation}</p>
+      ${emailCaptureHtml()}
+      ${actionsHtml}
+    `;
+  }
+
+  else if (state.screen === 'booking') {
+    stepCount.textContent = 'Step 5 of 5'; setPulse(7);
+    const nudge = state.recommendFaceToFace
+      ? `<p class="question" style="font-weight:500;color:var(--tan-deep);margin-top:-6px;">Based on what you shared, we'd suggest face-to-face if that works for you, so we can get hands on straight away.</p>`
+      : '';
+    el.innerHTML = `
+      ${backButtonHtml()}
+      <h1>Ready to get it sorted?</h1>
+      <p class="question">Face-to-face in Redfern, or virtual over Zoom, whichever gives you the flexibility you need.</p>
+      ${nudge}
+      <div class="toggle-row">
+        <button class="opt${state.format === 'faceToFace' ? ' selected' : ''}" onclick="answer('format','faceToFace')">Face-to-face</button>
+        <button class="opt${state.format === 'virtual' ? ' selected' : ''}" onclick="answer('format','virtual')">Virtual (Zoom)</button>
+      </div>
+      <div class="actions">
+        <button class="btn-primary" id="bookBtn" ${state.format ? '' : 'disabled'} onclick="goTo('confirm')">Book your initial consult →</button>
+        <button class="btn-text" onclick="goTo('confirm')">Not sure yet? Start a two way conversation with us</button>
+      </div>
+    `;
+  }
+
+  else if (state.screen === 'confirm') {
+    stepCount.textContent = 'Done'; setPulse(7);
+    el.innerHTML = `
+      <div class="result-badge calm">Nice work</div>
+      <h1>That's it, you're all set</h1>
+      <p>This is where the tool hands off to your live booking system, pre-filled with an Initial Consult and your chosen format.</p>
+      <div class="actions"><button class="btn-primary" onclick="resetTool()">Restart preview</button></div>
+    `;
+  }
+
+  content.appendChild(el);
+}
+
+function goTo(screen) { history.push(state.screen); state.screen = screen; render(); }
+
+function goBack() {
+  if (history.length === 0) return;
+  state.screen = history.pop();
+  render();
+}
+
+function backButtonHtml() {
+  return history.length > 0 ? `<button class="btn-back" onclick="goBack()">← Back</button>` : '';
+}
+
+function submitSafety() {
+  if (state.redFlags.length > 0) { goTo('exit'); }
+  else { goTo('swellingCheck'); }
+}
+
+function answer(key, value) {
+  state[key] = value;
+  if (key === 'swelling') goTo('tempCheck');
+  else if (key === 'tempChange') goTo('mobility');
+  else if (key === 'mobilityAnswer') goTo('strength');
+  else if (key === 'strengthAnswer') goTo('symptomPattern');
+  else if (key === 'symptomConstant') {
+    if (value === true) goTo('tryFirst');
+    else goTo('symptomTriggers');
+  }
+  else if (key === 'timeframe') goTo('result');
+  else if (key === 'format') {
+    render();
+  }
+}
+
+function resetTool() {
+  state = { screen:'intro', redFlags:[], swelling:null, tempChange:null, mobilityAnswer:null, strengthAnswer:null, symptomConstant:null, symptomTriggers:[], timeframe:null, format:null, recommendFaceToFace:false, resultTier:null };
+  history = [];
+  render();
+}
+
+render();
+</script>
+
+</body>
+</html>
