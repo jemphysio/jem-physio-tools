@@ -667,24 +667,10 @@ function render() {
       <h1>Ready to get it sorted?</h1>
       <p class="question">Face-to-face in Redfern, or virtual over Zoom, whichever gives you the flexibility you need.</p>
       ${nudge}
-      <div class="toggle-row">
-        <button class="opt${state.format === 'faceToFace' ? ' selected' : ''}" onclick="answer('format','faceToFace')">Face-to-face</button>
-        <button class="opt${state.format === 'virtual' ? ' selected' : ''}" onclick="answer('format','virtual')">Virtual (Zoom)</button>
-      </div>
       <div class="actions">
-        <button class="btn-primary" id="bookBtn" ${state.format ? '' : 'disabled'} onclick="goTo('confirm')">Book your initial consult →</button>
-        <button class="btn-text" onclick="goTo('confirm')">Not sure yet? Start a two way conversation with us</button>
+        <a href="https://jem-physio.splose.com/online-booking/7ac7f182-c30d-45c7-a0bf-9d0ea6b6e749" target="_blank" rel="noopener" class="btn-primary" style="text-decoration:none;text-align:center;display:block;">Book your initial consult →</a>
+        <a href="mailto:hello@jemphysio.com" class="btn-text" style="text-decoration:none;text-align:center;display:block;">Not sure yet? Start a two way conversation with us</a>
       </div>
-    `;
-  }
-
-  else if (state.screen === 'confirm') {
-    stepCount.textContent = 'Done'; setPulse(7);
-    el.innerHTML = `
-      <div class="result-badge calm">Nice work</div>
-      <h1>That's it, you're all set</h1>
-      <p>This is where the tool hands off to your live booking system, pre-filled with an Initial Consult and your chosen format.</p>
-      <div class="actions"><button class="btn-primary" onclick="resetTool()">Restart preview</button></div>
     `;
   }
 
